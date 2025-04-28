@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>법률사무소 두루라기</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      width: 360px;
+      min-height: 800px;
+      margin: 0 auto; /* 가운데 정렬 */
+      background-color: #ffffff;
+      color: #333333;
+      display: flex;
+      flex-direction: column; /* 전체 요소를 수직으로 배치 */
+    }
+
+    /* 상단 바 */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      height: 60px;
+      background-color: #82ff70; /* 변경된 색상 */
+      border-bottom: 1px solid #dee2e6; /* 부드러운 경계선 */
+      padding: 0 15px;
+      flex-shrink: 0; /* 상단 바 크기 고정 */
+    }
+
+    .logo img {
+      width: 55px; /* 로고 크기 키움 */
+      height: auto; /* 가로세로 비율 유지 */
+      margin-right: 15px;
+      vertical-align: middle; /* 텍스트와 수직 정렬 */
+    }
+
+    .office-name {
+      font-size: 2.0rem; /* 사무소 이름 글자 크기 키움 */
+      font-weight: 700; /* bold */
+      color: #000000; /* 검정색으로 변경 */
+    }
+
+    /* 프로필 섹션 */
+    .profile-section {
+      padding: 30px 15px;
+      padding-bottom: 10px; /* 아래쪽 여백만 10으로 바꾼다는 뜻 */
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: column; /* 세로 방향 배치로 변경 */
+    }
+
+    .profile-content {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 5px;
+      margin-bottom: 20px; /* 아래 텍스트와의 간격 */
+    }
+
+    .profile-left {
+      text-align: center; /* 가운데 정렬 */
+      flex: 0.9; /* 너비 조정 */
+    }
+
+    .profile-image img {
+      width: 170px; /* 이미지 크기 키움 */
+      height: auto;
+      border-radius: 8px; /* 부드러운 모서리 */
+      margin-bottom: 5px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+    }
+
+    .profile-right {
+      flex: 1.1; /* 너비 조정 */
+      text-align: left;
+      padding-left: 0; /* 왼쪽 여백 제거 */
+      font-size: 1.0rem; /* 글자 크기 키움 */
+      line-height: 1.6;
+    }
+
+    .profile-info {
+      text-align: center;
+      width: 100%;
+      padding-top: 5px;
+      border-top: 1px solid #eee; /* 상단 구분선 추가 */
+    }
+
+    .profile-full-name {
+      font-size: 2.0rem;
+      font-weight: 700;
+      color: #343a40;
+    }
+
+    /* 버튼 섹션 */
+    .button-section {
+      display: flex;
+      padding: 0 15px 25px; /* 상단 패딩 제거, 하단 간격 조정 */
+      gap: 15px; /* 버튼 사이 간격 */
+    }
+
+    .button {
+      flex: 1; /* 버튼이 공간을 균등하게 차지 */
+      padding: 18px 10px; /* 버튼 크기 키움 */
+      border: none;
+      border-radius: 6px;
+      font-size: clamp(1rem, 4vw, 1.5rem); /* 반응형 글자 크기: 최소 1rem, 최대 1.5rem */
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.2s ease; /* 부드러운 색상 전환 효과 */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 60px; /* 버튼 최소 높이 설정 */
+    }
+
+    .button-gray {
+      background-color: #6c757d; /* Bootstrap secondary color */
+      color: white;
+    }
+    .button-gray:hover {
+      background-color: #5a6268;
+    }
+
+    .button-orange {
+      background-color: #fd7e14; /* Bootstrap orange color */
+      color: white;
+    }
+     .button-orange:hover {
+      background-color: #e8590c;
+    }
+
+
+    /* 하단 정보 */
+    .footer {
+      padding: 25px 15px;
+      background-color: #f1f3f5; /* 더 밝은 회색 */
+      font-size: 0.875rem; /* 14px */
+      line-height: 1.7;
+      color: #495057;
+      margin-top: auto; /* 푸터를 맨 아래로 밀어냄 */
+      flex-shrink: 0; /* 푸터 크기 고정 */
+      border-top: 1px solid #dee2e6;
+    }
+
+    .footer h3 {
+      font-size: 0.95rem; /* 15px 정도 */
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: #343a40;
+    }
+
+    .footer p {
+      margin-bottom: 15px;
+    }
+    /* 마지막 p 태그의 마진 제거 */
+    .footer p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* 화면 크기에 따른 반응형 적용 */
+    @media (min-width: 400px) {
+      body {
+        width: 100%;
+        max-width: 600px;
+      }
+      
+      .button {
+        font-size: clamp(1.1rem, 5vw, 1.8rem);
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <!-- 상단 바 -->
+  <div class="top-bar">
+    <div class="logo">
+      <img src="로고01.png" alt="법률사무소 두루라기 로고">
+    </div>
+    <div class="office-name">법률사무소 두루라기</div>
+  </div>
+
+  <!-- 프로필 섹션 -->
+  <div class="profile-section">
+    <!-- 프로필 내용 (이미지와 경력/학력) -->
+    <div class="profile-content">
+      <div class="profile-left">
+        <div class="profile-image">
+          <img src="프로필01.jpg" alt="대표변호사 이주락 프로필 사진">
+        </div>
+      </div>
+      <div class="profile-right">
+        서울대학교 자유전공학부<br>
+        서울대학교 법학전문대학원<br>
+        <br>
+        前 키움증권 법무팀<br>
+        前 카카오페이 금융데이터팀<br>
+        前 크래프톤 엔지니어링 본부<br>
+        <br>
+        前 공공기관 고충심의위원회 위원<br>
+        前 국가지식재산위원회 소위원회 외부위원
+      </div>
+    </div>
+    
+    <!-- 대표변호사 이름 (중앙 정렬) -->
+    <div class="profile-info">
+      <div class="profile-full-name">대표변호사 이주락</div>
+    </div>
+  </div>
+
+  <!-- 버튼 섹션 -->
+  <div class="button-section">
+    <button class="button button-gray">업무 사례</button>
+    <button class="button button-orange">상담 예약</button>
+  </div>
+
+  <!-- 하단 정보 -->
+  <div class="footer">
+    <h3>[찾아오시는 곳]</h3>
+    <p>서울특별시 중구 다산로 32 남산타운아파트 상가 2동(약수역 방면) 105-1호</p>
+
+    <h3>[전화]</h3>
+    <p>010-8157-3526</p>
+
+    <h3>[이메일]</h3>
+    <p>joorak@dururagi.com</p>
+  </div>
+</body>
+</html> 
