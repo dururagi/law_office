@@ -21,6 +21,7 @@
       color: #333333;
       display: flex;
       flex-direction: column; /* 전체 요소를 수직으로 배치 */
+      padding-top: 60px; /* 상단 바 높이만큼 패딩 추가 */
     }
 
     /* 상단 바 */
@@ -32,6 +33,14 @@
       border-bottom: 1px solid #dee2e6; /* 부드러운 경계선 */
       padding: 0 15px;
       flex-shrink: 0; /* 상단 바 크기 고정 */
+      position: fixed; /* 상단 바 고정 */
+      top: 0;
+      left: 50%; /* 좌우 중앙 정렬 */
+      transform: translateX(-50%); /* 중앙 정렬 보정 */
+      width: 100%;
+      z-index: 1000; /* 다른 요소들 위에 표시 */
+      max-width: 600px; /* body의 max-width와 일치 */
+      box-sizing: border-box;
     }
 
     .logo img {
@@ -59,8 +68,8 @@
     .profile-content {
       display: flex;
       flex-direction: row;
-      align-items: flex-start;
-      gap: 5px;
+      align-items: center; /* 세로 중앙 정렬 */
+      gap: 20px; /* 간격 증가 */
       margin-bottom: 20px; /* 아래 텍스트와의 간격 */
     }
 
@@ -83,6 +92,15 @@
       padding-left: 0; /* 왼쪽 여백 제거 */
       font-size: 1.0rem; /* 글자 크기 키움 */
       line-height: 1.6;
+      white-space: nowrap; /* 줄바꿈 방지 */
+    }
+
+    .profile-right .wrap-allowed {
+      white-space: normal; /* 이 클래스에서만 줄바꿈 허용 */
+    }
+
+    .profile-right span {
+      font-size: clamp(0.7rem, 3vw, 1rem); /* 화면 크기에 따라 글자 크기 조정 */
     }
 
     .profile-info {
@@ -181,12 +199,14 @@
 </head>
 <body>
   <!-- 상단 바 -->
-  <div class="top-bar">
-    <div class="logo">
-      <img src="로고01.png" alt="법률사무소 두루라기 로고">
+  <a href="https://law.dururagi.com" style="text-decoration: none; color: inherit;">
+    <div class="top-bar">
+      <div class="logo">
+        <img src="로고01.png" alt="법률사무소 두루라기 로고">
+      </div>
+      <div class="office-name">법률사무소 두루라기</div>
     </div>
-    <div class="office-name">법률사무소 두루라기</div>
-  </div>
+  </a>
 
   <!-- 프로필 섹션 -->
   <div class="profile-section">
@@ -198,15 +218,16 @@
         </div>
       </div>
       <div class="profile-right">
-        서울대학교 자유전공학부<br>
-        서울대학교 법학전문대학원<br>
+        <span>서울대학교 자유전공학부</span><br>
+        <span>서울대학교 법학전문대학원</span><br>
         <br>
-        前 키움증권 법무팀<br>
-        前 카카오페이 금융데이터팀<br>
-        前 크래프톤 엔지니어링 본부<br>
+        <span>前 키움증권 법무팀</span><br>
+        <span>前 카카오페이 금융데이터팀</span><br>
+        <span>前 크래프톤 엔지니어링 본부</span><br>
         <br>
-        前 공공기관 고충심의위원회 위원<br>
-        前 국가지식재산위원회 소위원회 외부위원
+        <div class="wrap-allowed">
+          <span>前 국가지식재산위원회 소위원회 외부위원 & 공공기관 고충심의위원회 위원</span>
+        </div>
       </div>
     </div>
     
@@ -219,7 +240,7 @@
   <!-- 버튼 섹션 -->
   <div class="button-section">
     <button class="button button-gray">업무 사례</button>
-    <button class="button button-orange">상담 예약</button>
+    <button class="button button-orange" onclick="window.location.href='https://www.lawtalk.co.kr/directory/profile/0364-이주락?source=total_n&position=0&sc=normal&scq=이주락'">상담 예약</button>
   </div>
 
   <!-- 하단 정보 -->
