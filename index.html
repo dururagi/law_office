@@ -3,7 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>법률사무소 두루라기</title>
+  <title>법률사무소 두루라기 - 이주락 변호사 | 금융, IT, 지식재산, 스타트업 법률 자문</title>
+  <meta name="description" content="이주락 변호사가 운영하는 법률사무소 두루라기입니다. 금융, IT, 지식재산, 스타트업 등 관련 법률 문제에 대한 전문적인 상담과 자문을 제공합니다.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="법률사무소 두루라기 - 이주락 변호사"> 
+  <meta property="og:description" content="이주락 변호사가 운영하는 법률사무소 두루라기입니다. 금융, IT, 지식재산, 스타트업 등 관련 법률 문제에 대한 전문적인 상담과 자문을 제공합니다."> 
+  <meta property="og:image" content="https://law.dururagi.com/프로필01.jpg"> 
+  <meta property="og:url" content="https://law.dururagi.com/"> 
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="법률사무소 두루라기 - 이주락 변호사">
+  <meta name="twitter:description" content="이주락 변호사가 운영하는 법률사무소 두루라기입니다. 금융, IT, 지식재산, 스타트업 등 관련 법률 문제에 대한 전문적인 상담과 자문을 제공합니다.">
+  <meta name="twitter:image" content="https://law.dururagi.com/프로필01.jpg">
+  <meta name="twitter:domain" content="법률사무소 두루라기">
+  
+  <!-- 추가: 검색 엔진을 위한 키워드 -->
+  <meta name="keywords" content="이주락, 변호사, 법률사무소, 두루라기, 금융법, IT법, 지식재산권, 스타트업, 법률자문, 법률상담, 서울, 약수역">
+  
+  <!-- 추가: 구글 검색 콘솔 인증을 위한 자리 -->
+  <!-- <meta name="google-site-verification" content="구글 검색 콘솔에서 발급받은 코드" /> -->
+
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * {
@@ -114,6 +132,28 @@
       font-size: 2.0rem;
       font-weight: 700;
       color: #343a40;
+      margin: 0; /* h1 태그 기본 마진 제거 */
+    }
+    
+    /* 서비스 설명 섹션 추가 */
+    .service-description {
+      padding: 15px;
+      text-align: center;
+      line-height: 1.7;
+      margin: 15px 0;
+      background-color: #f8f9fa;
+      border-radius: 6px;
+    }
+    
+    .service-title {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #343a40;
+      font-weight: 700;
+    }
+
+    .service-description p {
+      text-align: justify; /* 양쪽 정렬 추가 */
     }
 
     /* 버튼 섹션 */
@@ -228,7 +268,7 @@
       <div class="logo">
         <img src="로고01.png" alt="법률사무소 두루라기 로고">
       </div>
-      <div class="office-name">법률사무소 두루라기</div>
+      <h2 class="office-name">법률사무소 두루라기</h2>
     </div>
   </a>
 
@@ -255,10 +295,16 @@
       </div>
     </div>
     
-    <!-- 대표변호사 이름 (중앙 정렬) -->
+    <!-- 대표변호사 이름 (중앙 정렬) - h1 태그로 변경 -->
     <div class="profile-info">
-      <div class="profile-full-name">대표변호사 이주락</div>
+      <h1 class="profile-full-name">대표변호사 이주락</h1>
     </div>
+  </div>
+  
+  <!-- 서비스 설명 섹션 추가 -->
+  <div class="service-description">
+    <h2 class="service-title">주요 업무 분야</h2>
+    <p><strong>금융</strong>(자본시장법, 투자사기, 핀테크), <strong>IT</strong>(개인정보, 플랫폼, 게임), <strong>지식재산</strong>(특허, 상표, 저작권) 분야에서 현업으로 쌓은 경험을 바탕으로, 깊이 있는 분석과 명쾌한 해결책을 제시합니다.</p>
   </div>
 
   <!-- 버튼 섹션 -->
@@ -269,19 +315,48 @@
 
   <!-- 하단 정보 -->
   <div class="footer">
-    <h3>[전화]</h3>
+    <h2>[전화]</h2>
     <p>010-8157-3526</p>
 
-    <h3>[이메일]</h3>
+    <h2>[이메일]</h2>
     <p>joorak@dururagi.com</p>
     
     <div class="footer-divider"></div>
 
-    <h3>[사무실 주소]</h3>
+    <h2>[사무실 주소]</h2>
     <p>서울특별시 중구 다산로 32 남산타운아파트 상가 2동(약수역 방면) 105-1호</p>
     
     <div class="map-description">▼ 약수역에서 찾아오시는 길 ▼</div>
     <img src="약도01.png" alt="약수역에서 찾아오시는 길" class="map-image">
+    
+    <!-- 추가: 구조화된 데이터 마크업 -->
+    <div itemscope itemtype="http://schema.org/LegalService" style="display:none;">
+      <span itemprop="name">법률사무소 두루라기</span>
+      <div itemprop="founder" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">이주락</span>
+        <span itemprop="jobTitle">변호사</span>
+      </div>
+      <div itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
+        <span itemprop="streetAddress">중구 다산로 32 남산타운아파트 상가 2동 105-1호</span>
+        <span itemprop="addressLocality">서울특별시</span>
+        <span itemprop="addressCountry">대한민국</span>
+      </div>
+      <span itemprop="telephone">010-8157-3526</span>
+      <span itemprop="email">joorak@dururagi.com</span>
+      <span itemprop="url">https://law.dururagi.com</span>
+      <div itemprop="knowsAbout">금융법, IT법, 지식재산권, 스타트업 법률자문</div>
+    </div>
   </div>
+  
+  <!-- 추가: 구글 애널리틱스 스크립트 자리 -->
+  <!-- 
+  <script async src="https://www.googletagmanager.com/gtag/js?id=MEASUREMENT_ID"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'MEASUREMENT_ID');
+  </script>
+  -->
 </body>
-</html> 
+</html>
