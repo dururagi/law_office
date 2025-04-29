@@ -183,6 +183,30 @@
         margin-bottom: 0;
     }
 
+    /* 푸터 구분선 */
+    .footer-divider {
+      border-top: 1px solid #dee2e6;
+      margin: 20px 0;
+    }
+
+    /* 약도 이미지 */
+    .map-image {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      margin-top: 10px;
+      border-radius: 6px;
+    }
+
+    /* 약도 설명 텍스트 */
+    .map-description {
+      font-size: 1.1rem; /* 글자 크기 키움 */
+      margin: 20px 0 10px 0; /* 상단 여백 증가 */
+      color: #343a40;
+      font-weight: 700; /* bold 처리 */
+      text-align: center; /* 가운데 정렬 */
+    }
+
     /* 화면 크기에 따른 반응형 적용 */
     @media (min-width: 400px) {
       body {
@@ -245,14 +269,19 @@
 
   <!-- 하단 정보 -->
   <div class="footer">
-    <h3>[찾아오시는 곳]</h3>
-    <p>서울특별시 중구 다산로 32 남산타운아파트 상가 2동(약수역 방면) 105-1호</p>
-
     <h3>[전화]</h3>
     <p>010-8157-3526</p>
 
     <h3>[이메일]</h3>
     <p>joorak@dururagi.com</p>
+    
+    <div class="footer-divider"></div>
+
+    <h3>[사무실 주소]</h3>
+    <p>서울특별시 중구 다산로 32 남산타운아파트 상가 2동(약수역 방면) 105-1호</p>
+    
+    <div class="map-description">▼ 약수역에서 찾아오시는 길 ▼</div>
+    <img src="약도01.png" alt="약수역에서 찾아오시는 길" class="map-image">
   </div>
 </body>
 </html> 
