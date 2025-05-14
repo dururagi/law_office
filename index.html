@@ -159,8 +159,13 @@
     /* 버튼 섹션 */
     .button-section {
       display: flex;
-      padding: 0 15px 25px; /* 상단 패딩 제거, 하단 간격 조정 */
+      padding: 0 15px 15px; /* 하단 패딩을 25px에서 15px로 줄임 */
       gap: 15px; /* 버튼 사이 간격 */
+    }
+
+    /* 인라인 스타일로 개별 버튼 섹션 공간 조절을 위한 클래스 추가 */
+    .button-section-custom-gap {
+      padding-bottom: 5px; /* 첫 번째 버튼 섹션의 하단 패딩을 더 줄임 */
     }
 
     .button {
@@ -301,16 +306,18 @@
     </div>
   </div>
   
-  <!-- 서비스 설명 섹션 추가 -->
-  <div class="service-description">
-    <h2 class="service-title">주요 업무 분야</h2>
-    <p><strong>금융</strong>(자본시장법, 투자사기, 핀테크), <strong>IT</strong>(개인정보, 플랫폼, 게임), <strong>지식재산</strong>(특허, 상표, 저작권) 분야에서 현업으로 쌓은 경험을 바탕으로, 깊이 있는 분석과 명쾌한 해결책을 제시합니다.</p>
+  <!-- 서비스 설명 섹션 삭제 -->
+
+  <!-- 버튼 섹션 - 하단 간격 줄임 -->
+  <div class="button-section button-section-custom-gap">
+    <button class="button" style="background-color: #6c757d; color: white;" onclick="window.location.href='https://horn-daughter-da7.notion.site/1e31379cb5c280ca9849ca5ff5c95b60?pvs=4'">업무 사례</button>
+    <button class="button" style="background-color: #ffa500; color: black;" onclick="window.location.href='https://www.lawtalk.co.kr/directory/profile/0364-이주락?source=total_n&position=0&sc=normal&scq=이주락'">상담 예약(로톡)</button>
   </div>
 
-  <!-- 버튼 섹션 -->
+  <!-- 새로운 버튼 섹션 추가 -->
   <div class="button-section">
-    <button class="button button-gray" onclick="window.location.href='https://horn-daughter-da7.notion.site/1e31379cb5c280ca9849ca5ff5c95b60?pvs=4'">업무 사례</button>
-    <button class="button button-orange" onclick="window.location.href='https://www.lawtalk.co.kr/directory/profile/0364-이주락?source=total_n&position=0&sc=normal&scq=이주락'">상담 예약</button>
+    <button class="button" style="background-color: #2DB400; color: white;" onclick="window.location.href='https://naver.me/xVBSL9af'">네이버 지도</button>
+    <button class="button" style="background-color: #80EF80; color: black;" onclick="window.location.href='https://m.booking.naver.com/booking/6/bizes/1408781/items/6738270?area=bmp&lang=ko&map-search=1&service-target=map-pc&startDate=TODAY&theme=place'">상담 예약(네이버)</button>
   </div>
 
   <!-- 하단 정보 -->
