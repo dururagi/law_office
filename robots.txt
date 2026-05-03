@@ -1,0 +1,3 @@
+User-agent: *
+   Allow: /
+   Sitemap: https://law.dururagi.com/sitemap.xml
