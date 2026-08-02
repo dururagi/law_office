@@ -117,7 +117,11 @@ body{font-family:'Galmuri11','Noto Sans KR',sans-serif; color:#333}
 }
 
 /* --- 무대 --- */
-.stage-wrap{position:relative; width:100%; line-height:0; cursor:pointer}
+.stage-wrap{
+  position:relative; width:100%; line-height:0; cursor:pointer;
+  /* 모바일에서는 말풍선이 무대 위로 솟는 높이만큼 명패 아래 공간을 확보한다. */
+  margin-top:var(--bubble-clearance, 0px);
+}
 #stage{
   width:100%; height:auto; display:block;
   image-rendering:pixelated; image-rendering:crisp-edges;
@@ -884,6 +888,7 @@ const C = window.SITE_CONTENT;
 const R = window.SiteRender;
 
 const bubbleEl = document.getElementById('bubble');
+const stageWrapEl = document.getElementById('stageWrap');
 const choicesEl = document.getElementById('choices');
 const panelSlot = document.getElementById('panelSlot');
 const menuEl   = document.getElementById('menu');
@@ -893,9 +898,27 @@ const privacyLink = document.getElementById('footerPrivacyLink');
 
 let typing = null, fullLine = '', currentId = null;
 
+/*
+ * 말풍선 꼬리는 캐릭터 정수리에 고정되어 있으므로, 좁은 화면이나 긴 대사에서는
+ * 말풍선 본체가 무대 위로 솟는다. 모바일에서 그 높이를 미리 재어 무대와 이후
+ * 콘텐츠를 함께 내리면 명패와는 겹치지 않고 캐릭터와의 거리도 그대로 유지된다.
+ */
+function fitBubbleBelowNameplate(line){
+  if(!window.matchMedia('(max-width:600px)').matches || !line){
+    stageWrapEl.style.setProperty('--bubble-clearance', '0px');
+    return;
+  }
+  const currentHTML = bubbleEl.innerHTML;
+  bubbleEl.textContent = line;
+  const overhang = Math.max(0, -bubbleEl.offsetTop);
+  stageWrapEl.style.setProperty('--bubble-clearance', Math.ceil(overhang) + 'px');
+  bubbleEl.innerHTML = currentHTML;
+}
+
 function type(line, done){
   clearInterval(typing);
   fullLine = line;
+  fitBubbleBelowNameplate(line);
   bubbleEl.classList.add('on');
   /* 화면낭독기에는 완성된 문장만 한 번 읽어 준다 (한 글자씩 읽히면 소음이 된다) */
   document.getElementById('srLine').textContent = line;
@@ -984,6 +1007,12 @@ window.addEventListener('popstate', (e)=>{
 });
 
 document.getElementById('stageWrap').onclick = finishTyping;
+
+let bubbleResizeFrame = null;
+window.addEventListener('resize', ()=>{
+  cancelAnimationFrame(bubbleResizeFrame);
+  bubbleResizeFrame = requestAnimationFrame(()=> fitBubbleBelowNameplate(fullLine));
+});
 
 /* 아이폰 사파리는 문서에 터치 처리기가 하나라도 있어야 :active 를 적용합니다.
    선택지를 손가락으로 누를 때 PC 처럼 표시가 뜨게 하려면 이 빈 처리기가 필요합니다. */
