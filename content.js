@@ -25,9 +25,9 @@ window.SITE_CONTENT = {
     "name": "법률사무소 두루라기",
     "lawyerName": "이주락",
     "phone": "010-8157-3526",
-    "email": "joorak@dururagi.com",
+    "email": "◀ 이메일",
     "address": "서울특별시 중구 다산로 32 남산타운아파트 상가 2동(약수역 방면) 105-1호",
-    "footerLocation": "서울시 중구 남산타운아파트상가 2동 105-1호"
+    "footerLocation": "◀ 사무실 주소"
   },
   "links": {
     "form": "https://docs.google.com/forms/d/e/1FAIpQLSdEMQogkxp3UruebOdVkg4RgTIFouumEwat95cVH9bBvCan-w/viewform?usp=dialog",

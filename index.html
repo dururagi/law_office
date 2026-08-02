@@ -128,7 +128,10 @@ body{font-family:'Galmuri11','Noto Sans KR',sans-serif; color:#333}
 
 /* --- 말풍선 --- */
 .bubble{
-  position:absolute; left:4%; right:4%; top:4.5%;
+  /* 꼬리 끝을 캔버스의 정수리(y=22/120)에 고정한다.
+     모바일에서 글이 두 줄이 되어도 말풍선은 위로만 커져 얼굴을 가리지 않는다. */
+  position:absolute; left:4%; right:4%; top:auto;
+  bottom:calc(81.667% + 15px);
   background:#f9f4e4; color:#1f1a12;
   font-size:var(--bubble-font-size); line-height:1.55;
   padding:12px 14px;
@@ -186,7 +189,7 @@ body{font-family:'Galmuri11','Noto Sans KR',sans-serif; color:#333}
 /* --- 노란 선택 상자 아래의 공통 사무실 정보 --- */
 .shop-footer{
   display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  gap:16px; align-items:center;
+  gap:16px; align-items:start;
   padding:16px 2px 22px;
   color:#efffe9; font-family:'Noto Sans KR',sans-serif;
   font-size:.78rem; line-height:1.45;
@@ -194,7 +197,10 @@ body{font-family:'Galmuri11','Noto Sans KR',sans-serif; color:#333}
 .shop-footer-item{
   min-width:0; display:flex; align-items:center; gap:7px;
 }
-.shop-footer-item.right{justify-content:flex-end; text-align:right}
+.shop-footer-item.right{
+  justify-content:flex-end; align-items:flex-end; text-align:right;
+  flex-direction:column; gap:12px;
+}
 .shop-footer-icon{
   flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center;
   width:25px; height:25px; color:#76ff3b; text-decoration:none;
@@ -210,19 +216,53 @@ body{font-family:'Galmuri11','Noto Sans KR',sans-serif; color:#333}
 /* 하단 문구 크기를 직접 바꾸려면 아래 두 곳의 15px을 수정하세요. */
 .shop-footer-location{color:#76ff3b; font-weight:700; overflow-wrap:anywhere; font-size:15px}
 .shop-footer-email-icon{color:#fff; border-color:#777; background:#11170f}
-.shop-footer-email{
-  min-width:0; color:#f2f0e8; overflow-wrap:anywhere; font-size:15px;
+.shop-footer-email-icon{
+  width:23px; height:23px; padding:0; cursor:pointer;
+  font:inherit; appearance:none; -webkit-appearance:none;
 }
-.shop-footer-contact{
-  min-width:0; display:flex; flex-direction:column; align-items:flex-end; gap:5px;
+.shop-footer-email-icon:hover,
+.shop-footer-email-icon:focus-visible,
+.shop-footer-email-icon:active{
+  color:#ffe9a8; background:#242018; border-color:#ffe9a8; outline:none;
+}
+.shop-footer-email{
+  min-width:0; color:#f2f0e8; overflow-wrap:anywhere; font-size:15px; line-height:23px;
+}
+.shop-footer-email-row{
+  min-width:0; display:flex; align-items:center; justify-content:flex-end; gap:7px;
 }
 .shop-footer-privacy{
   color:#fff; font-size:12px; line-height:1.35; text-underline-offset:3px;
+  margin-top:2px; text-decoration:none;
 }
 .shop-footer-privacy:hover,
 .shop-footer-privacy:focus-visible,
 .shop-footer-privacy:active{color:#ffe9a8; outline:none}
 .shop-footer-privacy[hidden]{display:none}
+
+/* --- 이메일 주소 복사 알림 --- */
+.copy-modal{
+  position:fixed; inset:0; z-index:20;
+  display:flex; align-items:center; justify-content:center;
+  padding:20px; background:rgba(10,8,16,.76);
+}
+.copy-modal[hidden]{display:none}
+.copy-modal-box{
+  width:min(100%, 390px); padding:22px 20px 18px;
+  background:#f9f4e4; color:#1f1a12;
+  border:3px solid #1f1a12;
+  box-shadow:5px 5px 0 rgba(0,0,0,.72), inset 0 0 0 2px #e6dcc0;
+  text-align:center; font-family:'Noto Sans KR',sans-serif;
+}
+.copy-modal-box p{font-size:15px; line-height:1.7; overflow-wrap:anywhere}
+.copy-modal-close{
+  margin-top:18px; padding:9px 24px; cursor:pointer;
+  border:2px solid #1f1a12; background:#28222f; color:#fff;
+  font:700 14px/1.2 'Noto Sans KR',sans-serif;
+}
+.copy-modal-close:hover,
+.copy-modal-close:focus-visible,
+.copy-modal-close:active{background:#493c1d; color:#fff4b5; outline:2px solid #c9a227; outline-offset:2px}
 
 /* --- 아래 고정 막대 --- */
 .shop-bar{
@@ -301,23 +341,31 @@ body{font-family:'Galmuri11','Noto Sans KR',sans-serif; color:#333}
         <span class="shop-footer-location" data-c="office.footerLocation">사무실 in 서울시 중구</span>
       </div>
       <div class="shop-footer-item right">
-        <span class="shop-footer-icon shop-footer-email-icon" id="footerEmailIcon"
-              role="img" aria-label="이메일">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="3" y="5" width="18" height="14" rx="1"/>
-            <path d="m4 7 8 6 8-6"/>
-          </svg>
-        </span>
-        <span class="shop-footer-contact">
+        <span class="shop-footer-email-row">
+          <button class="shop-footer-icon shop-footer-email-icon" id="footerEmailIcon"
+                  type="button" aria-label="메일 주소 joorak@dururagi.com 복사">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="14" rx="1"/>
+              <path d="m4 7 8 6 8-6"/>
+            </svg>
+          </button>
           <span class="shop-footer-email" id="footerEmailText"
                 data-c="office.email">joorak@dururagi.com</span>
-          <a class="shop-footer-privacy" id="footerPrivacyLink"
-             href="privacy_policy.html">개인정보처리방침</a>
         </span>
+        <a class="shop-footer-privacy" id="footerPrivacyLink"
+           href="privacy_policy.html">개인정보처리방침</a>
       </div>
     </footer>
   </div>
 </main>
+
+<div class="copy-modal" id="emailCopyModal" role="dialog" aria-modal="true"
+     aria-labelledby="emailCopyMessage" hidden>
+  <div class="copy-modal-box">
+    <p id="emailCopyMessage">메일 주소 &quot;joorak@dururagi.com&quot;을 복사하셨습니다.</p>
+    <button class="copy-modal-close" id="emailCopyClose" type="button">닫기</button>
+  </div>
+</div>
 
 <div class="shop-bar">
   <button id="btnBack" hidden>◀ <span data-c="buttons.back">돌아가기</span></button>
@@ -940,6 +988,64 @@ document.getElementById('stageWrap').onclick = finishTyping;
 /* 아이폰 사파리는 문서에 터치 처리기가 하나라도 있어야 :active 를 적용합니다.
    선택지를 손가락으로 누를 때 PC 처럼 표시가 뜨게 하려면 이 빈 처리기가 필요합니다. */
 document.addEventListener('touchstart', function(){}, {passive:true});
+
+/* 하단 편지 아이콘: 안내용 주소를 복사한 뒤 확인 창을 연다. */
+const EMAIL_COPY_TEXT = 'joorak@dururagi.com';
+const emailCopyButton = document.getElementById('footerEmailIcon');
+const emailCopyModal = document.getElementById('emailCopyModal');
+const emailCopyClose = document.getElementById('emailCopyClose');
+let emailCopyReturnFocus = null;
+
+function legacyCopyText(text){
+  const field = document.createElement('textarea');
+  field.value = text;
+  field.setAttribute('readonly', '');
+  field.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+  document.body.appendChild(field);
+  field.select();
+  field.setSelectionRange(0, field.value.length);
+  let copied = false;
+  const putTextOnClipboard = (e)=>{
+    if(!e.clipboardData) return;
+    e.clipboardData.setData('text/plain', text);
+    e.preventDefault();
+  };
+  document.addEventListener('copy', putTextOnClipboard, {once:true});
+  try{ copied = document.execCommand('copy'); }catch(e){}
+  document.removeEventListener('copy', putTextOnClipboard);
+  field.remove();
+  return copied;
+}
+
+async function copyEmailAddress(){
+  let copied = false;
+  if(navigator.clipboard && window.isSecureContext){
+    try{
+      await navigator.clipboard.writeText(EMAIL_COPY_TEXT);
+      copied = true;
+    }catch(e){}
+  }
+  if(!copied) copied = legacyCopyText(EMAIL_COPY_TEXT);
+  if(!copied) return;
+
+  emailCopyReturnFocus = document.activeElement;
+  emailCopyModal.hidden = false;
+  emailCopyClose.focus();
+}
+
+function closeEmailCopyModal(){
+  emailCopyModal.hidden = true;
+  if(emailCopyReturnFocus && emailCopyReturnFocus.focus) emailCopyReturnFocus.focus();
+}
+
+emailCopyButton.addEventListener('click', copyEmailAddress);
+emailCopyClose.addEventListener('click', closeEmailCopyModal);
+emailCopyModal.addEventListener('click', (e)=>{
+  if(e.target === emailCopyModal) closeEmailCopyModal();
+});
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape' && !emailCopyModal.hidden) closeEmailCopyModal();
+});
 
 /* ============================================================================
    B-2. 업무 사례
