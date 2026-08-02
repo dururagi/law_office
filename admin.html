@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>문구 편집기 — 법률사무소 두루라기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css">
+  <link rel="stylesheet" href="panel.css?v=4">
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0; background:#eceae4; color:#22201c;
+  font-family:'Noto Sans KR',sans-serif; font-size:14px;
+}
+
+/* ── 상단 바 ─────────────────────────────── */
+.bar{
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; gap:12px;
+  background:#22201c; color:#f0ece2;
+  padding:10px 16px; flex-wrap:wrap;
+}
+.bar h1{font-size:15px; margin:0; font-weight:700; letter-spacing:-.01em}
+.bar .spacer{flex:1}
+.bar button{
+  font-family:inherit; font-size:13px; cursor:pointer;
+  border:1px solid #55504a; background:#35322c; color:#f0ece2;
+  padding:8px 13px; border-radius:3px;
+}
+.bar button:hover{background:#464139}
+.bar button.primary{background:#c98b12; border-color:#e0a527; color:#1a1409; font-weight:700}
+.bar button.primary:hover{background:#e0a527}
+#status{font-size:12px; color:#a8a196}
+#status.dirty{color:#ffc857}
+#status.saved{color:#8fd17a}
+
+/* ── 3단 레이아웃 ────────────────────────── */
+.wrap{display:grid; grid-template-columns:210px minmax(0,1fr) minmax(0,420px); gap:0; align-items:start}
+@media (max-width:1100px){ .wrap{grid-template-columns:190px minmax(0,1fr)} .preview{display:none} }
+@media (max-width:720px){ .wrap{grid-template-columns:1fr} nav{position:static !important; border-right:0 !important} }
+
+/* ── 왼쪽 목차 ───────────────────────────── */
+nav{
+  position:sticky; top:46px; align-self:start;
+  background:#e2ded4; border-right:1px solid #cdc7ba;
+  padding:12px 0; max-height:calc(100vh - 46px); overflow-y:auto;
+}
+nav .grp{font-size:11px; color:#8a8175; padding:12px 16px 5px; letter-spacing:.04em}
+nav a{
+  display:block; padding:9px 16px; color:#3a352d; text-decoration:none;
+  font-size:13px; cursor:pointer; border-left:3px solid transparent;
+}
+nav a:hover{background:#d8d3c7}
+nav a.on{background:#fff; border-left-color:#c98b12; font-weight:700}
+
+/* ── 가운데 편집 영역 ────────────────────── */
+main{padding:22px 26px 80px; min-width:0}
+main h2{
+  font-size:19px; margin:0 0 4px; letter-spacing:-.01em;
+}
+main .lead{color:#777064; font-size:12.5px; margin:0 0 20px; line-height:1.7}
+
+.field{margin-bottom:16px}
+.field > label{display:block; font-size:12.5px; font-weight:700; margin-bottom:5px; color:#4a453c}
+.field .hint{font-size:11.5px; color:#8a8175; margin:4px 0 0; line-height:1.6}
+input[type=text], textarea, select{
+  width:100%; font-family:inherit; font-size:13.5px; line-height:1.6;
+  padding:9px 11px; border:1px solid #c4bdae; border-radius:3px;
+  background:#fff; color:#22201c;
+}
+input[type=range]{width:100%; accent-color:#c98b12}
+.size-row{display:grid; grid-template-columns:minmax(0,1fr) 66px; gap:12px; align-items:center}
+.size-value{
+  padding:8px 6px; border:1px solid #c4bdae; border-radius:3px;
+  background:#fff; text-align:center; font-weight:700; color:#4a453c;
+}
+.color-row{display:grid; grid-template-columns:48px minmax(0,1fr); gap:10px; align-items:center}
+.color-row input[type=color]{
+  width:48px; height:42px; padding:3px; cursor:pointer;
+  border:1px solid #c4bdae; border-radius:3px; background:#fff;
+}
+.color-code.invalid{border-color:#b3541e; background:#fff8f3}
+textarea{resize:vertical; min-height:66px}
+input:focus, textarea:focus, select:focus{outline:2px solid #c98b12; outline-offset:-1px; border-color:#c98b12}
+
+/* 문자열 목록 */
+.list-item{display:flex; gap:6px; align-items:flex-start; margin-bottom:6px}
+.list-item input{flex:1}
+.mini{
+  font-family:inherit; font-size:12px; cursor:pointer; flex:0 0 auto;
+  border:1px solid #c4bdae; background:#f6f4ee; color:#4a453c;
+  padding:8px 10px; border-radius:3px; line-height:1;
+}
+.mini:hover{background:#e6e2d8}
+.mini.danger:hover{background:#f3d6d2; border-color:#c47a70; color:#8a3226}
+.add{
+  font-family:inherit; font-size:12.5px; cursor:pointer;
+  border:1px dashed #b4ac9c; background:transparent; color:#6b6458;
+  padding:8px 13px; border-radius:3px;
+}
+.add:hover{background:#e2ded4; border-style:solid}
+
+/* 블록 카드 */
+.block{
+  border:1px solid #cdc7ba; border-radius:4px; background:#f7f5f0;
+  padding:12px; margin-bottom:10px;
+}
+/* 글자 꾸미기 단추 줄 */
+.rich-bar{display:flex; flex-wrap:wrap; gap:4px; align-items:center; margin-bottom:7px}
+.rich-bar .rt{
+  font-family:inherit; font-size:12px; line-height:1.1; cursor:pointer;
+  border:1px solid #c4bdae; background:#f6f4ee; color:#4a453c;
+  padding:6px 8px; border-radius:3px; min-width:26px;
+}
+.rich-bar .rt:hover{background:#e6e2d8; border-color:#a89f8d}
+.rich-bar .sep{width:1px; height:17px; background:#d3ccbe; margin:0 4px}
+
+.block-head{display:flex; align-items:center; gap:7px; margin-bottom:10px}
+.block-head select{width:auto; flex:0 0 auto; font-size:12.5px; padding:6px 9px}
+.block-head .grow{flex:1}
+.block .cta-picks{display:flex; flex-wrap:wrap; gap:12px}
+.block .cta-picks label{display:flex; align-items:center; gap:5px; font-size:12.5px; cursor:pointer}
+
+.choice-card{
+  border:1px solid #cdc7ba; border-radius:4px; background:#f7f5f0;
+  padding:12px; margin-bottom:9px;
+  display:grid; grid-template-columns:minmax(0,1fr) 190px auto auto auto; gap:8px; align-items:center;
+}
+.choice-label{min-width:0}
+.choice-label input{width:100%}
+@media (max-width:820px){ .choice-card{grid-template-columns:1fr 1fr; } }
+
+/* ── 오른쪽 미리보기 ─────────────────────── */
+.preview{
+  position:sticky; top:46px; align-self:start;
+  max-height:calc(100vh - 46px); overflow-y:auto;
+  background:#2a2722; padding:16px; border-left:1px solid #cdc7ba;
+}
+.preview h3.pv{font-size:11px; color:#a29a8c; margin:0 0 10px; letter-spacing:.05em; font-weight:400}
+.pv-bubble{
+  background:#f7f2e2; color:#221c14; border:2px solid #221c14;
+  padding:11px 13px; font-family:'Galmuri11','Noto Sans KR',sans-serif;
+  font-size:13px; line-height:1.55; margin-bottom:14px; position:relative;
+}
+.pv-bubble::after{
+  content:''; position:absolute; left:20px; bottom:-11px;
+  width:14px; height:11px; background:#f7f2e2;
+  border-left:2px solid #221c14; border-right:2px solid #221c14;
+  clip-path:polygon(0 0,100% 0,100% 33%,66% 33%,66% 66%,33% 66%,33% 100%,0 100%);
+}
+.pv-choices{
+  background:#171410; border:2px solid #c9a227; padding:8px; margin-bottom:14px;
+  font-family:'Galmuri11','Noto Sans KR',sans-serif;
+}
+.pv-choices div{color:#e8dcc0; font-size:13px; padding:8px 6px}
+.pv-choices div.booking{color:#ffff00}
+
+/* ── 저장 안내 모달 ──────────────────────── */
+.modal-bg{
+  position:fixed; inset:0; background:rgba(20,18,15,.75); z-index:100;
+  display:flex; align-items:center; justify-content:center; padding:20px;
+}
+.modal{
+  background:#fff; border-radius:5px; padding:24px; max-width:520px; width:100%;
+  box-shadow:0 12px 40px rgba(0,0,0,.4);
+}
+.modal h3{margin:0 0 12px; font-size:17px}
+.modal p{margin:0 0 12px; font-size:13.5px; line-height:1.8; color:#4a453c}
+.modal code{background:#f0ede6; padding:2px 6px; border-radius:3px; font-size:12.5px}
+.modal .row{display:flex; gap:8px; justify-content:flex-end; margin-top:18px; flex-wrap:wrap}
+.modal button{
+  font-family:inherit; font-size:13px; cursor:pointer; padding:10px 16px;
+  border-radius:3px; border:1px solid #c4bdae; background:#f6f4ee;
+}
+.modal button.primary{background:#c98b12; border-color:#c98b12; color:#fff; font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <h1>문구 편집기</h1>
+  <span id="status">불러오는 중…</span>
+  <span class="spacer"></span>
+  <button id="btnOpenSite">사이트 열어 보기</button>
+  <button id="btnRevert">편집 취소</button>
+  <button id="btnSave" class="primary">저장하기</button>
+</div>
+
+<div class="wrap">
+  <nav id="nav"></nav>
+  <main id="main"></main>
+  <aside class="preview" id="preview"></aside>
+</div>
+
+<script src="content.js"></script>
+<script src="render.js"></script>
+<script>
+/* ============================================================================
+   0. 준비
+   ============================================================================ */
+/* v4 로 올림 — 화면 구성이 바뀌기 전 초안에 남은 오래된 항목이
+   새 구조를 옛날 것으로 되돌리는 사고를 막습니다. */
+const DRAFT_KEY = 'dururagi_admin_draft_v4';
+const ORIGINAL  = JSON.parse(JSON.stringify(window.SITE_CONTENT || {}));
+let D  = JSON.parse(JSON.stringify(ORIGINAL));   // 편집 중인 데이터
+let dirty = false;
+let fileHandle = null;
+let current = 'office';
+
+const NODE_LABEL = {
+  root:'첫 화면', matter:'의뢰 질문', about:'변호사, 네가 궁금해',
+  refund:'나를 위해 싸워줘', claim:'사업에 도움을 줘'
+};
+const BLOCK_LABEL = {
+  h4:'소제목', p:'문단', ul:'목록', tags:'태그', image:'이미지', cta:'버튼 묶음', note:'작은 안내글'
+};
+const CTA_LABEL = {
+  cases:'업무 사례', form:'상담 예약(구글 폼)'
+};
+
+const SECTIONS = [
+  {grp:'사무소'},
+  {id:'office',  name:'사무소 정보'},
+  {id:'appearance', name:'글자 크기·이미지·버튼 색'},
+  {id:'links',   name:'바깥 링크'},
+  {grp:'대화 화면'},
+  {id:'node:root',    name:'첫 화면'},
+  {id:'node:matter',  name:'의뢰 질문'},
+  {id:'node:about',   name:'변호사, 네가 궁금해'},
+  {id:'node:refund',  name:'나를 위해 싸워줘'},
+  {id:'node:claim',   name:'사업에 도움을 줘'},
+  {id:'cases',        name:'업무 사례'},
+  {grp:'그 밖에'},
+  {id:'buttons',    name:'버튼 문구'},
+  {id:'disclaimer', name:'공통 안내 문구'},
+  {id:'seo',        name:'검색엔진 정보'}
+];
+
+/* 어떤 선택지에서도 갈 수 없는 화면인지 — 목차와 편집 화면에 표시해 준다 */
+function isReachable(id){
+  if(id === 'root') return true;
+  const seen = new Set();
+  Object.values(D.nodes || {}).forEach(n=>
+    (n.choices || []).forEach(c=>{ if(c.go) seen.add(c.go); }));
+  return seen.has(id);
+}
+
+/* ── 값 읽기/쓰기 ── */
+const get = (p) => p.split('.').reduce((o,k)=> (o==null?o:o[k]), D);
+function set(p, v){
+  const ks = p.split('.'); const last = ks.pop();
+  let o = D; ks.forEach(k=>{ if(o[k]==null) o[k]={}; o = o[k]; });
+  o[last] = v; touch();
+}
+function touch(){
+  dirty = true;
+  document.getElementById('status').textContent = '저장하지 않은 변경이 있습니다';
+  document.getElementById('status').className = 'dirty';
+  try{ localStorage.setItem(DRAFT_KEY, JSON.stringify(D)); }catch(e){}
+  drawPreview();
+}
+function markSaved(msg){
+  dirty = false;
+  document.getElementById('status').textContent = msg || '저장했습니다';
+  document.getElementById('status').className = 'saved';
+  try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+}
+
+/* ============================================================================
+   1. 입력 위젯
+   ============================================================================ */
+const el = (tag, cls, html) => {
+  const n = document.createElement(tag);
+  if(cls) n.className = cls;
+  if(html != null) n.innerHTML = html;
+  return n;
+};
+
+function fText(label, path, hint){
+  const f = el('div','field');
+  f.appendChild(el('label',null,label));
+  const i = el('input'); i.type='text'; i.value = get(path) ?? '';
+  i.oninput = ()=> set(path, i.value);
+  f.appendChild(i);
+  if(hint) f.appendChild(el('p','hint',hint));
+  return f;
+}
+
+function fArea(label, path, hint, rows){
+  const f = el('div','field');
+  f.appendChild(el('label',null,label));
+  const t = el('textarea'); t.value = get(path) ?? ''; if(rows) t.rows = rows;
+  t.oninput = ()=> set(path, t.value);
+  f.appendChild(t);
+  if(hint) f.appendChild(el('p','hint',hint));
+  return f;
+}
+
+function fSize(label, path, min, max, hint){
+  const f = el('div','field');
+  f.appendChild(el('label',null,label));
+  const row = el('div','size-row');
+  const input = el('input');
+  input.type = 'range'; input.min = min; input.max = max; input.step = 1;
+  input.value = Number(get(path)) || min;
+  const value = el('div','size-value',input.value + ' px');
+  input.oninput = ()=>{ value.textContent = input.value + ' px'; set(path, Number(input.value)); };
+  row.append(input, value);
+  f.appendChild(row);
+  if(hint) f.appendChild(el('p','hint',hint));
+  return f;
+}
+
+function fPercent(label, path, min, max, hint){
+  const f = el('div','field');
+  f.appendChild(el('label',null,label));
+  const row = el('div','size-row');
+  const input = el('input');
+  input.type = 'range'; input.min = min; input.max = max; input.step = 1;
+  input.value = Number(get(path)) || min;
+  const value = el('div','size-value',input.value + ' %');
+  input.oninput = ()=>{ value.textContent = input.value + ' %'; set(path, Number(input.value)); };
+  row.append(input, value);
+  f.appendChild(row);
+  if(hint) f.appendChild(el('p','hint',hint));
+  return f;
+}
+
+function normalizeHexColor(value){
+  let s = String(value || '').trim();
+  if(/^[0-9a-f]{6}$/i.test(s)) s = '#' + s;
+  return /^#[0-9a-f]{6}$/i.test(s) ? s.toUpperCase() : null;
+}
+
+function fColor(label, path, fallback, hint){
+  const f = el('div','field');
+  f.appendChild(el('label',null,label));
+  const row = el('div','color-row');
+  const picker = el('input'); picker.type = 'color';
+  const code = el('input','color-code'); code.type = 'text';
+  picker.dataset.path = path;
+  code.dataset.path = path;
+  code.placeholder = '#RRGGBB'; code.maxLength = 7;
+  const currentColor = normalizeHexColor(get(path)) || fallback;
+  picker.value = currentColor;
+  code.value = currentColor;
+  const help = el('p','hint',hint || '0~9와 A~F를 조합한 6자리 색상 코드입니다. 예: #1A73E8');
+
+  const apply = (value)=>{
+    const safe = normalizeHexColor(value);
+    if(!safe){
+      code.classList.add('invalid');
+      help.innerHTML = '<b style="color:#b3541e"># 뒤에 0~9와 A~F 여섯 자리를 입력해 주세요.</b> 예: #1A73E8';
+      return;
+    }
+    code.classList.remove('invalid');
+    code.value = safe;
+    picker.value = safe;
+    help.innerHTML = hint || '0~9와 A~F를 조합한 6자리 색상 코드입니다. 예: #1A73E8';
+    set(path, safe);
+  };
+  picker.oninput = ()=> apply(picker.value);
+  code.oninput = ()=> apply(code.value);
+  code.onblur = ()=>{
+    if(!normalizeHexColor(code.value)){
+      const saved = normalizeHexColor(get(path)) || fallback;
+      code.value = saved; picker.value = saved; code.classList.remove('invalid');
+      help.innerHTML = hint || '0~9와 A~F를 조합한 6자리 색상 코드입니다. 예: #1A73E8';
+    }
+  };
+  row.append(picker, code);
+  f.append(row, help);
+  return f;
+}
+
+/* 말풍선 대사 — 글자 수를 실시간으로 알려 준다.
+   20자를 넘으면 휴대폰에서 두 줄이 되고, 말풍선이 그림의 위쪽을 더 가립니다. */
+function fLine(label, path){
+  const f = el('div','field');
+  f.appendChild(el('label',null,label));
+  const t = el('textarea'); t.value = get(path) ?? ''; t.rows = 2;
+  const h = el('p','hint');
+  const upd = ()=>{
+    const n = (t.value || '').length;
+    const over = n > 20;
+    h.innerHTML = '<b style="color:' + (over ? '#b3541e' : '#4a453c') + '">' + n + ' / 20자</b> — ' +
+      (over ? '휴대폰에서 두 줄이 됩니다. 그림 위쪽이 더 가려져요.'
+            : '휴대폰에서도 한 줄로 들어갑니다.');
+    t.style.borderColor = over ? '#c98b12' : '#c4bdae';
+  };
+  t.oninput = ()=>{ set(path, t.value); upd(); };
+  upd();
+  f.append(t, h);
+  return f;
+}
+
+/* 문자열 배열 편집 */
+function fList(label, arrRef, hint){
+  const f = el('div','field');
+  f.appendChild(el('label',null,label));
+  const box = el('div');
+  const redraw = ()=>{
+    box.innerHTML = '';
+    arrRef.get().forEach((v,i)=>{
+      const row = el('div','list-item');
+      const inp = el('input'); inp.type='text'; inp.value = v;
+      inp.oninput = ()=>{ const a=arrRef.get(); a[i]=inp.value; arrRef.set(a); };
+      const up = el('button','mini','↑'); up.title='위로';
+      up.onclick = ()=>{ if(i===0) return; const a=arrRef.get(); [a[i-1],a[i]]=[a[i],a[i-1]]; arrRef.set(a); redraw(); };
+      const dn = el('button','mini','↓'); dn.title='아래로';
+      dn.onclick = ()=>{ const a=arrRef.get(); if(i===a.length-1) return; [a[i+1],a[i]]=[a[i],a[i+1]]; arrRef.set(a); redraw(); };
+      const rm = el('button','mini danger','✕'); rm.title='삭제';
+      rm.onclick = ()=>{ const a=arrRef.get(); a.splice(i,1); arrRef.set(a); redraw(); };
+      row.append(inp, up, dn, rm);
+      box.appendChild(row);
+    });
+    const add = el('button','add','+ 줄 추가');
+    add.onclick = ()=>{ const a=arrRef.get(); a.push(''); arrRef.set(a); redraw(); };
+    box.appendChild(add);
+  };
+  redraw();
+  f.appendChild(box);
+  if(hint) f.appendChild(el('p','hint',hint));
+  return f;
+}
+
+const RICH_HINT =
+  '꾸미고 싶은 글자를 <b>마우스로 드래그해 고른 뒤</b> 위 단추를 누르세요. ' +
+  '글 속에 남는 <code>**굵게**</code> · <code>{크게|글자}</code> 같은 표시가 그 뜻입니다. ' +
+  '줄 맨 앞에 <code>/크게 </code>를 적으면 그 줄 전체가 커집니다(<code>/작게</code> <code>/아주크게</code>도 같음). ' +
+  '<b>엔터와 빈 줄은 적은 그대로 화면에 반영됩니다.</b> 겹쳐 쓰셔도 됩니다. HTML 태그는 쓰지 마세요.';
+
+/* ============================================================================
+   1-2. 글자 꾸미기 단추
+   ----------------------------------------------------------------------------
+   크기의 종류는 render.js 한 곳에만 적혀 있고(SiteRender.richSizes),
+   여기서는 그 목록을 그대로 읽어 단추를 만듭니다.
+   ============================================================================ */
+const RT_SIZE_PX = {'작게':'11px', '크게':'14px', '아주크게':'16px'};
+
+/* 고른 글자를 앞뒤 표시로 감싼다. 고른 것이 없으면 '글자'를 넣어 두고 그 부분을
+   다시 골라 준다 — 바로 덮어써 입력하실 수 있게. */
+function wrapField(field, before, after){
+  if(!field) return;
+  const v = field.value;
+  const s = field.selectionStart == null ? v.length : field.selectionStart;
+  const e = field.selectionEnd   == null ? v.length : field.selectionEnd;
+  const sel = e > s ? v.slice(s,e) : '글자';
+  field.value = v.slice(0,s) + before + sel + after + v.slice(e);
+  field.dispatchEvent(new Event('input', {bubbles:true}));   /* 저장·미리보기 반영 */
+  field.focus();
+  field.setSelectionRange(s + before.length, s + before.length + sel.length);
+}
+
+/* 고른 글자에서 꾸미기 표시만 걷어낸다 */
+function stripField(field){
+  if(!field) return;
+  const v = field.value;
+  const s = field.selectionStart, e = field.selectionEnd;
+  const names = Object.keys(SiteRender.richSizes).join('|');
+  const re = new RegExp('\\{(' + names + ')\\|([^{}]*)\\}', 'g');
+  const target = (e > s) ? v.slice(s,e) : v;
+  let out = target.replace(/\*\*/g, '');
+  for(let i=0;i<6;i++){ const n = out.replace(re, '$2'); if(n === out) break; out = n; }
+  field.value = (e > s) ? (v.slice(0,s) + out + v.slice(e)) : out;
+  field.dispatchEvent(new Event('input', {bubbles:true}));
+  field.focus();
+  field.setSelectionRange(s, (e > s) ? s + out.length : out.length);
+}
+
+/* getField() 는 '지금 손대고 있는 칸'을 돌려준다 (목록처럼 칸이 여러 개인 경우) */
+function richToolbar(getField){
+  const bar = el('div','rich-bar');
+  const add = (text, title, cls, style, fn)=>{
+    const b = el('button', 'rt' + (cls ? ' '+cls : ''), text);
+    b.type = 'button'; b.title = title;
+    if(style) b.setAttribute('style', style);
+    b.onmousedown = (ev)=> ev.preventDefault();     /* 고른 영역을 잃지 않도록 */
+    b.onclick = ()=> fn(getField());
+    bar.appendChild(b);
+  };
+
+  add('굵게','굵게 — **글자**', null, 'font-weight:700',
+      (f)=> wrapField(f, '**', '**'));
+  bar.appendChild(el('span','sep'));
+
+  Object.keys(SiteRender.richSizes).forEach(k=>{
+    add(k, k + ' — {' + k + '|글자}', null, 'font-size:' + (RT_SIZE_PX[k]||'12px'),
+        (f)=> wrapField(f, '{'+k+'|', '}'));
+  });
+  bar.appendChild(el('span','sep'));
+
+  add('꾸미기 지우기','고른 글자에서 굵게·크기 표시를 걷어냅니다', null, null, stripField);
+  return bar;
+}
+
+/* 카드(또는 칸) 안에서 마지막으로 손댄 입력칸을 기억해 둔다 */
+function fieldTracker(container){
+  container.addEventListener('focusin', (ev)=>{
+    if(ev.target.tagName === 'TEXTAREA' ||
+       (ev.target.tagName === 'INPUT' && ev.target.type === 'text')) container.__f = ev.target;
+  });
+  return ()=> container.__f ||
+              container.querySelector('textarea:not([disabled]), input[type=text]');
+}
+
+/* ============================================================================
+   2. 화면 그리기
+   ============================================================================ */
+function drawNav(){
+  const nav = document.getElementById('nav');
+  nav.innerHTML = '';
+  SECTIONS.forEach(s=>{
+    if(s.grp){ nav.appendChild(el('div','grp',s.grp)); return; }
+    let name = s.name;
+    if(s.id.startsWith('node:') && !isReachable(s.id.slice(5))) name += ' ⚠';
+    const a = el('a', s.id===current?'on':'', name);
+    a.onclick = ()=>{ current = s.id; drawNav(); drawMain(); drawPreview(); window.scrollTo(0,0); };
+    nav.appendChild(a);
+  });
+}
+
+function drawMain(){
+  const m = document.getElementById('main');
+  m.innerHTML = '';
+
+  if(current.startsWith('node:')) return drawNode(m, current.slice(5));
+
+  switch(current){
+    case 'office':
+      m.append(el('h2',null,'사무소 정보'),
+               el('p','lead','화면 맨 위 명패와 맨 아래 사무실 연락처에 쓰입니다.'));
+      m.append(fText('사무소 이름','office.name','화면 맨 위 명패에 나옵니다.'));
+      m.append(fText('변호사 이름','office.lawyerName','명패 오른쪽에 “○○○ 변호사”로 나옵니다.'));
+      m.append(fText('전화번호','office.phone','검색엔진에 알려 주는 사무소 정보로 보관됩니다.'));
+      m.append(fText('이메일','office.email','화면 오른쪽 맨 아래에 표시됩니다. 아이콘과 주소는 클릭되지 않는 일반 표시입니다.'));
+      m.append(fText('하단 사무실 문구','office.footerLocation','화면 왼쪽 맨 아래의 초록색 문구입니다.'));
+      m.append(fArea('사무실 주소','office.address',
+        '지금은 화면에 나오지 않고, 검색엔진에 알려 주는 용도로만 쓰입니다. ' +
+        '이 주소를 바꾸셨다면 <code>index.html</code> 맨 위의 구조화 데이터도 함께 고쳐야 합니다.'));
+      break;
+
+    case 'appearance':
+      m.append(el('h2',null,'글자 크기·프로필 이미지·안내 버튼 색'),
+               el('p','lead','글자 크기와 프로필 이미지 너비, 안내문 아래에 나란히 놓이는 “업무 사례”·“상담 예약” 버튼의 색을 조절합니다.'));
+      m.append(fSize('“법률사무소 두루라기” 글자 크기','appearance.officeNameFontSize',12,36,
+        '화면 맨 위 명패 왼쪽 글자입니다.'));
+      m.append(fSize('“이주락 변호사” 글자 크기','appearance.lawyerNameFontSize',10,28,
+        '화면 맨 위 명패 오른쪽 글자입니다.'));
+      m.append(fSize('말풍선 글자 크기','appearance.bubbleFontSize',11,24,
+        '모든 대화 화면의 말풍선에 같은 크기가 적용됩니다.'));
+      m.append(fPercent('프로필 이미지 너비','appearance.profileImageWidthPercent',40,100,
+        '“변호사, 네가 궁금해” 화면의 프로필 이미지 크기입니다. 화면 너비에 대한 비율로 조절됩니다.'));
+      m.append(el('h3',null,'업무 사례·상담 예약 버튼'));
+      m.append(el('p','lead','아래 설정은 안내문 속 두 버튼에만 적용됩니다. 객관식 선택지의 “바로 상담 예약” 색은 바뀌지 않습니다.'));
+      m.append(fSize('두 버튼의 공통 글자 크기','appearance.ctaFontSize',10,24,
+        '업무 사례와 상담 예약 버튼의 글자 크기가 함께 바뀝니다.'));
+      m.append(fColor('업무 사례 — 버튼 색','appearance.casesButtonBackgroundColor','#3C3A44'));
+      m.append(fColor('업무 사례 — 글자 색','appearance.casesButtonTextColor','#FFFFFF'));
+      m.append(fColor('상담 예약 — 버튼 색','appearance.formButtonBackgroundColor','#F0930D'));
+      m.append(fColor('상담 예약 — 글자 색','appearance.formButtonTextColor','#1A1206'));
+      break;
+
+    case 'links':
+      m.append(el('h2',null,'바깥 링크'),
+               el('p','lead','버튼을 눌렀을 때 이동할 주소입니다. 주소가 비어 있으면 그 버튼은 화면에 나오지 않습니다.'));
+      m.append(fArea('상담 예약 (구글 폼)','links.form',
+        '‘상담 예약’ 버튼과 ‘바로 상담 예약’ 선택지가 이 주소로 연결됩니다.',2));
+      m.append(fArea('네이버 지도','links.naverMap','화면 왼쪽 맨 아래의 지도 아이콘을 누르면 확인 없이 바로 이 주소로 연결됩니다.',2));
+      m.append(el('p','hint',
+        '‘업무 사례’ 버튼은 링크가 아니라 홈페이지 폴더 안 <b>업무사례</b> 폴더의 ' +
+        '텍스트 파일로 자동으로 만들어집니다. 파일 이름은 <code>유형_사건제목.txt</code> 로 지어 주세요.'));
+      break;
+
+    case 'buttons':
+      m.append(el('h2',null,'버튼 문구'),
+               el('p','lead','버튼에 적히는 말입니다.'));
+      Object.keys(D.buttons||{}).forEach(k=>{
+        const names = {form:'상담 예약(구글 폼)',cases:'업무 사례',back:'돌아가기'};
+        m.append(fText(names[k]||k, 'buttons.'+k));
+      });
+      break;
+
+    case 'cases':
+      m.append(el('h2',null,'업무 사례'),
+               el('p','lead','사례 하나하나는 여기서 고치지 않습니다. 홈페이지 폴더 안 업무사례 폴더의 텍스트 파일이 곧 사례입니다.'));
+      m.append(el('div', null,
+        '<div style="background:#fdf3dc;border:1px solid #dcc68a;padding:12px 14px;border-radius:3px;' +
+        'font-size:12.5px;line-height:1.9;margin-bottom:18px">' +
+        '<b>사례를 더하고 빼는 법</b><br>' +
+        '· <code>업무사례</code> 폴더에 <code>유형_사건제목.txt</code> 파일을 넣으면 사례가 하나 늘어납니다.<br>' +
+        '&nbsp;&nbsp;예) <code>지식재산권_1타 강사 저작권 다툼.txt</code> — 같은 유형끼리 자동으로 묶입니다.<br>' +
+        '· 같은 이름의 <code>.png / .jpg / .jpeg</code> 를 넣으면 그 사례 글 위에 사진이 나옵니다.<br>' +
+        '· txt 안에서 <code>**굵게**</code>, <code>{크게|글자}</code>, 줄 맨 앞 <code>/크게 </code>(그 줄 전체 크게)를 쓸 수 있고,' +
+        ' <b>줄바꿈과 빈 줄은 적은 그대로</b> 화면에 나옵니다.<br>' +
+        '· 컴퓨터에서 확인할 때는 <code>홈페이지 미리보기.cmd</code>를 더블클릭하세요. 실제 사이트에는 GitHub에 올린 뒤 반영됩니다.<br>' +
+        '· 자세한 사용법은 폴더 안 <code>_설명서.txt</code>에 있습니다.</div>'));
+      m.append(fText('목록 화면 제목','cases.title','사례 목록 위에 붙는 제목입니다.'));
+      m.append(fLine('목록 화면 말풍선','cases.line'));
+      m.append(fLine('사례 화면 말풍선','cases.detailLine'));
+      break;
+
+    case 'disclaimer':
+      m.append(el('h2',null,'공통 안내 문구'),
+               el('p','lead','안내 패널 맨 아래에 작은 글씨로 붙는 문구입니다. 여기서 한 번 고치면 모든 안내에 함께 반영됩니다.'));
+      const dis = fArea('문구','disclaimer',RICH_HINT,4);
+      const disT = dis.querySelector('textarea');
+      dis.insertBefore(richToolbar(()=> disT), disT);
+      m.append(dis);
+      break;
+
+    case 'seo':
+      m.append(el('h2',null,'검색엔진 정보'),
+               el('p','lead','구글·네이버 검색 결과에 뜨는 제목과 설명입니다. 자주 바꾸지 않는 것이 좋습니다.'));
+      m.append(el('div', null,
+        '<div style="background:#fdf3dc;border:1px solid #dcc68a;padding:12px 14px;border-radius:3px;' +
+        'font-size:12.5px;line-height:1.8;margin-bottom:18px">' +
+        '<b>여기는 저장만으로 끝나지 않습니다.</b><br>' +
+        '검색엔진은 자바스크립트를 켜지 않고도 읽을 수 있어야 해서, 같은 문구가 ' +
+        '<code>index.html</code> 맨 위 <code>&lt;head&gt;</code> 안에도 들어 있습니다.<br>' +
+        '여기를 고치셨다면 아래 버튼으로 복사해 그 부분을 바꿔 주시거나, 저에게 말씀해 주세요.</div>'));
+      const copyBtn = el('button','add','바뀐 &lt;head&gt; 부분 복사하기');
+      copyBtn.style.marginBottom = '18px';
+      copyBtn.onclick = ()=>{
+        const s = D.seo || {}, e = SiteRender.esc;
+        const txt =
+'  <title>' + e(s.title) + '</title>\n' +
+'  <meta name="description" content="' + e(s.description) + '">\n' +
+'  <meta property="og:title" content="' + e(D.office.name) + ' - ' + e(D.office.lawyerName) + ' 변호사">\n' +
+'  <meta property="og:description" content="' + e(s.description) + '">\n' +
+'  <meta property="og:image" content="' + e(s.ogImage) + '">\n' +
+'  <meta property="og:url" content="' + e(s.url) + '">\n' +
+'  <meta name="keywords" content="' + e(s.keywords) + '">';
+        navigator.clipboard.writeText(txt).then(
+          ()=> showModal('복사했습니다','<p><code>index.html</code> 을 메모장으로 열어 맨 위 <code>&lt;title&gt;</code> 부터 <code>keywords</code> 줄까지를 붙여넣은 내용으로 바꿔 주세요.</p>'),
+          ()=> showModal('복사하지 못했습니다','<p>브라우저가 복사를 막았습니다. 아래 내용을 직접 옮겨 주세요.</p><pre style="white-space:pre-wrap;font-size:11.5px;background:#f0ede6;padding:10px;border-radius:3px">'+SiteRender.esc(txt)+'</pre>')
+        );
+      };
+      m.append(copyBtn);
+      m.append(fArea('페이지 제목','seo.title',null,2));
+      m.append(fArea('설명','seo.description',null,3));
+      m.append(fArea('검색어(쉼표로 구분)','seo.keywords',null,3));
+      m.append(fText('사이트 주소','seo.url'));
+      m.append(fText('공유 시 보이는 이미지 주소','seo.ogImage'));
+      break;
+  }
+}
+
+function refArr(path){
+  return {
+    get: ()=> (get(path) || []).slice(),
+    set: (a)=> set(path, a)
+  };
+}
+
+/* ── 대화 화면 한 개 ── */
+function drawNode(m, id){
+  const node = D.nodes[id];
+  if(!node){ m.append(el('h2',null,'없는 화면입니다')); return; }
+
+  m.append(el('h2',null,NODE_LABEL[id] || id));
+  m.append(el('p','lead', node.choices
+    ? '말풍선에 뜨는 말과, 그 아래 선택지를 정합니다.'
+    : '말풍선에 뜨는 말과, 그 아래 안내 내용을 정합니다.'));
+
+  if(!isReachable(id)){
+    m.append(el('div', null,
+      '<div style="background:#fdf3dc;border:1px solid #dcc68a;padding:12px 14px;border-radius:3px;' +
+      'font-size:12.5px;line-height:1.8;margin-bottom:18px">' +
+      '⚠ <b>이 화면은 지금 어디에서도 연결되지 않습니다.</b><br>' +
+      '어느 화면의 선택지도 여기로 이어지지 않아 방문자는 볼 수 없습니다. ' +
+      '내용은 보관되어 있으니, 다시 쓰려면 다른 화면의 선택지에서 이 화면으로 연결해 주세요.</div>'));
+  }
+
+  m.append(fLine('말풍선 대사', 'nodes.'+id+'.line'));
+
+  if(node.title !== undefined || node.blocks){
+    m.append(fText('안내 제목', 'nodes.'+id+'.title'));
+  }
+
+  if(node.choices) m.append(drawChoices(id));
+  if(node.blocks)  m.append(drawBlocks(id));
+}
+
+/* ── 선택지 편집 ── */
+function drawChoices(id){
+  const f = el('div','field');
+  f.appendChild(el('label',null,'선택지'));
+  const box = el('div');
+  const redraw = ()=>{
+    box.innerHTML = '';
+    const arr = D.nodes[id].choices;
+    arr.forEach((c,i)=>{
+      const card = el('div','choice-card');
+
+      const inp = el('input'); inp.type='text'; inp.value = c.label || '';
+      inp.oninput = ()=>{ c.label = inp.value; touch(); };
+      const labelBox = el('div','choice-label');
+      labelBox.append(richToolbar(()=> inp), inp);
+
+      const sel = el('select');
+      Object.keys(NODE_LABEL).forEach(k=>{
+        const o = el('option',null,NODE_LABEL[k]); o.value = 'go:'+k; sel.appendChild(o);
+      });
+      [['form','바로 상담 예약(구글 폼)']].forEach(x=>{
+        const o = el('option',null,x[1]); o.value = 'link:'+x[0]; sel.appendChild(o);
+      });
+      sel.value = c.link ? 'link:' + c.link : 'go:' + c.go;
+      sel.onchange = ()=>{
+        const [kind, target] = sel.value.split(':');
+        if(kind === 'link'){
+          c.link = target;
+          c.featured = true;
+          delete c.go;
+        }else{
+          c.go = target;
+          delete c.link;
+          delete c.featured;
+        }
+        delete c.act;                 /* 옛 '평범한 화면으로' 설정이 남아 있으면 지운다 */
+        touch();
+      };
+
+      const up = el('button','mini','↑');
+      up.onclick = ()=>{ if(i===0) return; [arr[i-1],arr[i]]=[arr[i],arr[i-1]]; touch(); redraw(); };
+      const dn = el('button','mini','↓');
+      dn.onclick = ()=>{ if(i===arr.length-1) return; [arr[i+1],arr[i]]=[arr[i],arr[i+1]]; touch(); redraw(); };
+      const rm = el('button','mini danger','✕');
+      rm.onclick = ()=>{ arr.splice(i,1); touch(); redraw(); };
+
+      card.append(labelBox, sel, up, dn, rm);
+      box.appendChild(card);
+    });
+    const add = el('button','add','+ 선택지 추가');
+    add.onclick = ()=>{ arr.push({label:'새 선택지', go:'about'}); touch(); redraw(); };
+    box.appendChild(add);
+  };
+  redraw();
+  f.appendChild(box);
+  f.appendChild(el('p','hint','선택지 글자도 크기를 조절할 수 있습니다. “바로 상담 예약”을 고르면 노란색과 ▶ 표시가 항상 나타납니다.'));
+  return f;
+}
+
+/* ── 안내 블록 편집 ── */
+function drawBlocks(id){
+  const f = el('div','field');
+  f.appendChild(el('label',null,'안내 내용'));
+  const box = el('div');
+
+  const redraw = ()=>{
+    box.innerHTML = '';
+    const arr = D.nodes[id].blocks;
+    arr.forEach((b,i)=>{
+      const card = el('div','block');
+
+      /* 머리줄: 종류 · 이동 · 삭제 */
+      const head = el('div','block-head');
+      const sel = el('select');
+      Object.keys(BLOCK_LABEL).forEach(k=>{
+        const o = el('option',null,BLOCK_LABEL[k]); o.value=k; sel.appendChild(o);
+      });
+      sel.value = b.type;
+      sel.onchange = ()=>{
+        const t = sel.value;
+        arr[i] = (t==='ul'||t==='tags'||t==='cta') ? {type:t, items:[]} :
+          (t==='image' ? {type:t, src:'프로필01.jpg', alt:'변호사 프로필'} : {type:t, text:''});
+        touch(); redraw();
+      };
+      head.append(sel, el('span','grow'));
+      const up = el('button','mini','↑');
+      up.onclick = ()=>{ if(i===0) return; [arr[i-1],arr[i]]=[arr[i],arr[i-1]]; touch(); redraw(); };
+      const dn = el('button','mini','↓');
+      dn.onclick = ()=>{ if(i===arr.length-1) return; [arr[i+1],arr[i]]=[arr[i],arr[i+1]]; touch(); redraw(); };
+      const rm = el('button','mini danger','✕');
+      rm.onclick = ()=>{ arr.splice(i,1); touch(); redraw(); };
+      head.append(up,dn,rm);
+      card.appendChild(head);
+
+      /* 몸통 */
+      if(b.type==='cta'){
+        const picks = el('div','cta-picks');
+        Object.keys(CTA_LABEL).forEach(k=>{
+          const lab = el('label');
+          const cb = el('input'); cb.type='checkbox';
+          cb.checked = (b.items||[]).includes(k);
+          cb.onchange = ()=>{
+            b.items = b.items || [];
+            if(cb.checked){ if(!b.items.includes(k)) b.items.push(k); }
+            else b.items = b.items.filter(x=>x!==k);
+            touch();
+          };
+          lab.append(cb, document.createTextNode(CTA_LABEL[k]));
+          picks.appendChild(lab);
+        });
+        card.appendChild(picks);
+
+      }else if(b.type==='image'){
+        const srcLabel = el('label',null,'이미지 파일명 또는 주소');
+        const src = el('input'); src.type='text'; src.value=b.src||'';
+        src.oninput = ()=>{ b.src=src.value; touch(); };
+        const altLabel = el('label',null,'이미지 설명 (화면낭독기용)');
+        altLabel.style.marginTop='10px';
+        const alt = el('input'); alt.type='text'; alt.value=b.alt||'';
+        alt.oninput = ()=>{ b.alt=alt.value; touch(); };
+        card.append(srcLabel, src, altLabel, alt,
+          el('p','hint','홈페이지 폴더에 있는 파일은 예: 프로필01.jpg 처럼 적습니다. 크기는 왼쪽 “글자 크기·이미지·버튼 색” 메뉴에서 조절합니다.'));
+
+      }else if(b.type==='ul' || b.type==='tags'){
+        const sub = fList('', {
+          get:()=> (b.items||[]).slice(),
+          set:(a)=>{ b.items = a; touch(); }
+        }, b.type==='ul' ? RICH_HINT : '짧은 낱말로 적으시면 보기 좋습니다. (꾸미기는 되지 않습니다)');
+        sub.querySelector('label').remove();
+        /* 목록은 줄이 여러 개이므로, 단추는 '마지막에 커서를 둔 줄'에 적용된다 */
+        if(b.type==='ul') card.appendChild(richToolbar(fieldTracker(card)));
+        card.appendChild(sub);
+
+      }else{
+        const isAuto = (b.text === '@disclaimer');
+        if(b.type==='note'){
+          const lab = el('label'); lab.style.cssText='display:flex;gap:6px;align-items:center;font-size:12.5px;margin-bottom:8px;cursor:pointer';
+          const cb = el('input'); cb.type='checkbox'; cb.checked = isAuto;
+          cb.onchange = ()=>{ b.text = cb.checked ? '@disclaimer' : (D.disclaimer||''); touch(); redraw(); };
+          lab.append(cb, document.createTextNode('공통 안내 문구를 그대로 쓰기'));
+          card.appendChild(lab);
+        }
+        const t = el('textarea');
+        t.value = isAuto ? (D.disclaimer||'') : (b.text||'');
+        t.rows = (b.type==='p') ? 4 : 2;
+        t.disabled = isAuto;
+        if(isAuto) t.style.background = '#eeebe3';
+        t.oninput = ()=>{ b.text = t.value; touch(); };
+        if(b.type!=='h4' && !isAuto) card.appendChild(richToolbar(()=> t));
+        card.appendChild(t);
+        if(b.type!=='h4') card.appendChild(el('p','hint',RICH_HINT));
+      }
+
+      box.appendChild(card);
+    });
+
+    const add = el('button','add','+ 내용 추가');
+    add.onclick = ()=>{ arr.push({type:'p', text:''}); touch(); redraw(); };
+    box.appendChild(add);
+  };
+  redraw();
+  f.appendChild(box);
+  return f;
+}
+
+/* ── 오른쪽 미리보기 ── */
+function drawPreview(){
+  const pv = document.getElementById('preview');
+  pv.innerHTML = '<h3 class="pv">미리보기</h3>';
+  const appearance = D.appearance || {};
+  const ctaSize = Math.min(24, Math.max(10, Number(appearance.ctaFontSize) || 14));
+  document.documentElement.style.setProperty('--cta-font-size', ctaSize + 'px');
+  const profileWidth = Math.min(100, Math.max(40, Number(appearance.profileImageWidthPercent) || 68));
+  document.documentElement.style.setProperty('--profile-image-width', profileWidth + '%');
+  document.documentElement.style.setProperty('--cta-cases-background', normalizeHexColor(appearance.casesButtonBackgroundColor) || '#3C3A44');
+  document.documentElement.style.setProperty('--cta-cases-text', normalizeHexColor(appearance.casesButtonTextColor) || '#FFFFFF');
+  document.documentElement.style.setProperty('--cta-form-background', normalizeHexColor(appearance.formButtonBackgroundColor) || '#F0930D');
+  document.documentElement.style.setProperty('--cta-form-text', normalizeHexColor(appearance.formButtonTextColor) || '#1A1206');
+
+  if(current === 'appearance'){
+    const demo = el('div','panel');
+    demo.innerHTML = '<div class="cta-row">' +
+      '<span class="cta cases">' + SiteRender.esc(D.buttons?.cases || '업무 사례') + '</span>' +
+      '<span class="cta form">' + SiteRender.esc(D.buttons?.form || '상담 예약') + '</span></div>';
+    pv.appendChild(demo);
+    return;
+  }
+  if(!current.startsWith('node:')){
+    pv.innerHTML += '<p style="color:#8a8175;font-size:12.5px;line-height:1.8">' +
+      '이 항목은 대화 화면이 아니어서 미리보기가 없습니다.<br>' +
+      '저장한 뒤 <b style="color:#c9a227">사이트 열어 보기</b>로 확인해 주세요.</p>';
+    return;
+  }
+  const id = current.slice(5);
+  const node = D.nodes[id];
+  if(!node) return;
+
+  const bubble = el('div','pv-bubble', SiteRender.esc(node.line || ''));
+  bubble.style.fontSize = ((D.appearance && D.appearance.bubbleFontSize) || 15) + 'px';
+  pv.appendChild(bubble);
+
+  if(node.choices){
+    const c = el('div','pv-choices');
+    node.choices.forEach((ch,i)=>{
+      const prefix = ch.featured ? '▶ ' : (i+1)+'. ';
+      c.appendChild(el('div',ch.featured ? 'booking' : null,prefix+SiteRender.rich(ch.label||'')));
+    });
+    if(id!=='root') c.appendChild(el('div',null,'◀ '+SiteRender.esc(D.buttons?.back||'돌아가기')));
+    pv.appendChild(c);
+  }
+  if(node.blocks){
+    const p = el('div','panel', SiteRender.panelHTML(node, D));
+    pv.appendChild(p);
+    if(!node.choices){
+      const c = el('div','pv-choices'); c.style.marginTop='14px';
+      c.appendChild(el('div',null,'◀ '+SiteRender.esc(D.buttons?.back||'돌아가기')));
+      pv.appendChild(c);
+    }
+  }
+}
+
+/* ============================================================================
+   3. 저장
+   ============================================================================ */
+const HEADER = `/* ============================================================================
+   법률사무소 두루라기 — 사이트 문구 데이터
+   ----------------------------------------------------------------------------
+   이 파일은 admin.html 이 만들어 냅니다.
+   직접 고치셔도 되지만, admin.html 을 브라우저로 열면 더 편합니다.
+
+   ※ 글자 꾸미기 (admin 의 글이든 업무사례 폴더의 txt 든 똑같이 적용됩니다)
+        **굵게**              → 굵게
+        {크게|글자}            → 크기  (작게 · 크게 · 아주크게)
+        /크게 (줄 맨 앞)       → 그 줄 전체가 크게  (/작게 /아주크게 도 같음)
+        빈 줄                 → 화면에도 빈 줄 그대로
+        겹쳐 쓰기 —  {크게|**중요**}
+   ※ HTML 태그는 쓰지 마세요. 그대로 글자로 보입니다.
+   ============================================================================ */
+
+`;
+
+function serialize(){
+  return HEADER + 'window.SITE_CONTENT = ' + JSON.stringify(D, null, 2) + ';\n';
+}
+
+async function save(){
+  const text = serialize();
+
+  if(window.showOpenFilePicker || window.showSaveFilePicker){
+    try{
+      if(!fileHandle){
+        const pickerOptions = {
+          types:[{description:'content.js', accept:{'text/javascript':['.js']}}],
+          excludeAcceptAllOption:true
+        };
+        if(window.showOpenFilePicker){
+          alert('홈페이지 폴더(law_office-main) 안에 있는 기존 content.js 파일을 선택해 주세요.\n\n그 파일을 직접 덮어써야 index.html에 반영됩니다.');
+          [fileHandle] = await window.showOpenFilePicker(Object.assign({multiple:false}, pickerOptions));
+        }else{
+          fileHandle = await window.showSaveFilePicker(Object.assign({suggestedName:'content.js'}, pickerOptions));
+        }
+      }
+      const w = await fileHandle.createWritable();
+      await w.write(text);
+      await w.close();
+      markSaved('content.js 에 저장했습니다');
+      return true;
+    }catch(e){
+      if(e && e.name === 'AbortError') return false;    /* 사용자가 취소 */
+      fileHandle = null;                                 /* 그 밖의 오류 → 내려받기로 */
+    }
+  }
+  downloadAndGuide(text);
+  return false;
+}
+
+function downloadAndGuide(text){
+  const blob = new Blob([text], {type:'text/javascript;charset=utf-8'});
+  const url  = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'content.js';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  /* 내려받기만으로는 홈페이지 원본이 바뀌지 않는다. 저장 완료로 표시하거나
+     초안을 지우면 사용자가 적용됐다고 오해하므로 dirty 상태를 유지한다. */
+  document.getElementById('status').textContent = '내려받았습니다 — 원본 파일에 덮어써야 적용됩니다';
+  document.getElementById('status').className = 'dirty';
+  showModal(
+    '내려받은 파일을 옮겨 주세요',
+    '<p>이 브라우저에서는 파일을 곧바로 덮어쓸 수 없어 <b>내려받기</b>로 저장했습니다.</p>' +
+    '<p>다운로드 폴더의 <code>content.js</code> 를 잘라내어 홈페이지 폴더<br>' +
+    '(<code>law_office-main</code>) 안의 <code>content.js</code> 위에 덮어써 주세요.</p>' +
+    '<p style="color:#8a8175;font-size:12.5px">크롬이나 엣지로 이 편집기를 열면 다음부터는 덮어쓰기로 바로 저장됩니다.</p>'
+  );
+}
+
+function showModal(title, html){
+  const bg = el('div','modal-bg');
+  const m  = el('div','modal');
+  m.innerHTML = '<h3>'+title+'</h3>'+html+'<div class="row"><button class="primary">알겠습니다</button></div>';
+  m.querySelector('button').onclick = ()=> bg.remove();
+  bg.appendChild(m);
+  bg.onclick = (e)=>{ if(e.target===bg) bg.remove(); };
+  document.body.appendChild(bg);
+}
+
+/* ============================================================================
+   4. 시작
+   ============================================================================ */
+document.getElementById('btnSave').onclick = save;
+
+document.getElementById('btnRevert').onclick = ()=>{
+  if(!confirm('편집한 내용을 모두 버리고 저장된 content.js 상태로 되돌립니다. 계속할까요?')) return;
+  D = JSON.parse(JSON.stringify(ORIGINAL));
+  try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+  dirty = false;
+  document.getElementById('status').textContent = '되돌렸습니다';
+  document.getElementById('status').className = '';
+  drawMain(); drawPreview();
+};
+
+document.getElementById('btnOpenSite').onclick = async ()=>{
+  if(dirty){
+    if(!confirm('변경 내용을 먼저 content.js 에 저장한 뒤 사이트를 엽니다. 계속할까요?')) return;
+    const applied = await save();
+    /* 다운로드만 된 경우에는 홈페이지 폴더의 원본이 아직 그대로다. */
+    if(!applied) return;
+  }
+  window.open('index.html?refresh=' + Date.now(),'_blank');
+};
+
+window.addEventListener('beforeunload', (e)=>{
+  if(dirty){ e.preventDefault(); e.returnValue = ''; }
+});
+
+(function start(){
+  if(!window.SITE_CONTENT){
+    document.body.innerHTML =
+      '<div style="padding:40px;font-family:sans-serif;line-height:1.8">' +
+      '<h2>content.js 를 찾지 못했습니다</h2>' +
+      '<p>이 파일(admin.html)은 <b>content.js 와 같은 폴더</b>에 있어야 합니다.</p></div>';
+    return;
+  }
+  let draft = null;
+  try{ draft = localStorage.getItem(DRAFT_KEY); }catch(e){}
+  if(draft && draft !== JSON.stringify(ORIGINAL)){
+    if(confirm('저장하지 않은 편집 내용이 남아 있습니다. 이어서 편집할까요?\n\n[취소]를 누르면 저장된 content.js 내용으로 시작합니다.')){
+      try{ D = JSON.parse(draft); dirty = true; }catch(e){}
+    }else{
+      try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+    }
+  }
+  /* 옛 content.js·옛 초안에는 업무 사례 문구가 없을 수 있다 — 기본값을 채워 둔다 */
+  [D, ORIGINAL].forEach(o=>{
+    if(!o.cases) o.cases = {
+      title:'업무 사례', line:'몇 가지 기록을 꺼내 왔습니다.', detailLine:'그때의 기록입니다.'
+    };
+    if(!o.appearance) o.appearance = {};
+    if(!o.appearance.officeNameFontSize) o.appearance.officeNameFontSize = 22;
+    if(!o.appearance.lawyerNameFontSize) o.appearance.lawyerNameFontSize = 16;
+    if(!o.appearance.bubbleFontSize) o.appearance.bubbleFontSize = 15;
+    if(!o.appearance.ctaFontSize) o.appearance.ctaFontSize = 14;
+    if(!o.appearance.profileImageWidthPercent) o.appearance.profileImageWidthPercent = 68;
+    if(!normalizeHexColor(o.appearance.casesButtonBackgroundColor)) o.appearance.casesButtonBackgroundColor = '#3C3A44';
+    if(!normalizeHexColor(o.appearance.casesButtonTextColor)) o.appearance.casesButtonTextColor = '#FFFFFF';
+    if(!normalizeHexColor(o.appearance.formButtonBackgroundColor)) o.appearance.formButtonBackgroundColor = '#F0930D';
+    if(!normalizeHexColor(o.appearance.formButtonTextColor)) o.appearance.formButtonTextColor = '#1A1206';
+    if(!o.office) o.office = {};
+    if(!o.office.footerLocation) o.office.footerLocation = '사무실 in 서울시 중구';
+
+  });
+  document.getElementById('status').textContent = dirty ? '저장하지 않은 변경이 있습니다' : '불러왔습니다';
+  document.getElementById('status').className = dirty ? 'dirty' : '';
+  drawNav(); drawMain(); drawPreview();
+})();
+</script>
+</body>
+</html>

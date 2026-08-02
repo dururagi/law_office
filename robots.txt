@@ -1,3 +1,5 @@
 User-agent: *
-   Allow: /
-   Sitemap: https://law.dururagi.com/sitemap.xml
+Allow: /
+Disallow: /admin.html
+
+Sitemap: https://law.dururagi.com/sitemap.xml

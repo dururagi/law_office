@@ -1,0 +1,3 @@
+---
+---
+{"files":[{% assign first = true %}{% for f in site.static_files %}{% if f.path contains "업무사례/" %}{% unless first %},{% endunless %}{{ f.name | jsonify }}{% assign first = false %}{% endif %}{% endfor %}]}

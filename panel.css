@@ -1,0 +1,97 @@
+/* ============================================================================
+   안내 패널 모양 — index.html 과 admin.html 이 함께 씁니다.
+   덕분에 admin.html 의 미리보기가 실제 화면과 똑같이 보입니다.
+   ============================================================================ */
+
+.panel{
+  background:#f4efe2; color:#241f18;
+  border:1px solid #cfc4a8;
+  box-shadow:0 2px 0 rgba(0,0,0,.35);
+  padding:20px 18px;
+  font-family:'Noto Sans KR',sans-serif;
+}
+.panel h3{
+  font-family:'Galmuri11','Noto Sans KR',sans-serif;
+  font-size:1.1rem; letter-spacing:.01em; margin:0 0 12px; color:#2e2519;
+  border-bottom:1px solid #cfc4a8; padding-bottom:10px;
+}
+.panel h4{
+  font-size:.9rem; margin:18px 0 6px; color:#7a5c1e;
+  letter-spacing:.02em;
+}
+.panel h4:first-child{margin-top:0}
+.panel p{font-size:.9rem; line-height:1.8; margin:0 0 10px}
+.panel ul{margin:0 0 10px 1.15em; padding:0; font-size:.88rem; line-height:1.9}
+.panel li{margin-bottom:2px}
+.panel b{font-weight:700; color:#1b160f}
+
+.panel .tagrow{margin-bottom:4px}
+.panel .tag{
+  display:inline-block; background:#e2d9c0; color:#5a4a26;
+  font-size:.76rem; padding:4px 9px; margin:0 5px 5px 0; border-radius:2px;
+}
+
+.panel .note{
+  font-size:.76rem; color:#786a53; line-height:1.7;
+  border-top:1px solid #d8cdb2; padding-top:10px; margin-top:16px;
+}
+
+/* 변호사 소개 프로필 — 화면 폭에 맞춰 줄어들고 가운데에 놓입니다. */
+.panel-profile-wrap{
+  display:flex; justify-content:center;
+  margin:16px 0 18px;
+}
+.panel-profile{
+  display:block;
+  width:var(--profile-image-width, 68%);
+  max-width:100%; height:auto;
+  border:1px solid #cfc4a8;
+  background:#e9e2cf;
+}
+
+.cta-row{display:flex; gap:7px; flex-wrap:wrap; margin-top:14px}
+.cta-row.solo .cta{flex:1 1 100%}
+.cta{
+  flex:1 1 46%;
+  font-family:'Galmuri11','Noto Sans KR',sans-serif;
+  text-align:center; text-decoration:none;
+  padding:12px 6px; font-size:var(--cta-font-size, 14px); line-height:1.3;
+  border:1px solid rgba(0,0,0,.35);
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:rgba(201,162,39,.22);
+}
+/* 모바일에는 hover 가 없으므로, 누르고 있는 동안 :active 로 같은 표시를 줍니다. */
+.cta:hover{filter:brightness(1.08)}
+.cta:active{filter:brightness(1.18)}
+.cta.cases{
+  background:var(--cta-cases-background, #3c3a44);
+  color:var(--cta-cases-text, #ffffff);
+}
+.cta.form{
+  background:var(--cta-form-background, #f0930d);
+  color:var(--cta-form-text, #1a1206);
+}
+
+/* ── 업무 사례 목록 · 본문 (index.html 에서만 쓰입니다) ── */
+.case-list{display:flex; flex-direction:column; gap:6px; margin:0 0 4px}
+.case-item{
+  font-family:'Noto Sans KR',sans-serif;
+  display:flex; align-items:center; gap:8px;
+  width:100%; text-align:left; cursor:pointer;
+  background:#fdfbf2; border:1px solid #cfc4a8; color:#241f18;
+  font-size:.9rem; line-height:1.5; padding:12px 11px;
+  touch-action:manipulation; -webkit-tap-highlight-color:rgba(201,162,39,.22);
+}
+.case-item .arrow{opacity:0; color:#8a6d1c; flex:0 0 auto; font-size:.8em}
+.case-item:hover, .case-item:focus-visible, .case-item:active{
+  background:#f3ead0; border-color:#c9a227; outline:none;
+}
+.case-item:hover .arrow, .case-item:focus-visible .arrow, .case-item:active .arrow{opacity:1}
+
+/* 사례 사진 — 가로를 가득 채우고 세로는 가로의 2/3 */
+.case-photo{
+  display:block; width:100%; aspect-ratio:3/2; object-fit:cover;
+  border:1px solid #cfc4a8; background:#e9e2cf; margin:2px 0 14px;
+}
+.case-photo-slot:empty{display:none}
+.case-empty{color:#786a53}
